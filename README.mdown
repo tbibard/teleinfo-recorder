@@ -10,12 +10,46 @@ http://www.erdfdistribution.fr/medias/DTR_Generalites/ERDF-NOI-CPT_44E.pdf
 De nombreux schémas permettent de réaliser son propre démodulateur de la téléinformation, 
 pour sa part l'auteur a utilisé le démodulateur de www.suiviconso.fr, connecté à un Raspberry Pi.
 
-Pré-requis
-==========
 
+Pré-requis
+----------
+ - PHP 5.3 ou supérieur
 
 
 Installation
-============
+------------
+TeleinfoRecorder est disponible sur Packagist ([tbibard/teleinfo-recorder](http://packagist.org/packages/tbibard/teleinfo-recorder))
+et donc installable via [Composer](http://getcomposer.org/).
 
+Si vous n'utilisez pas Composer, vous pouvez récupérer le code via GitHub et utiliser un autoloader compatible PSR-0
+(e.g. the [Symfony2 ClassLoader component](https://github.com/symfony/ClassLoader)) pour charger les classes de TeleinfoRecorder.
 
+Usage
+-----
+
+```php
+<?php
+
+use TeleinfoRecorder\Recorder;
+use TeleinfoRecorder\Handler\StreamHandler;
+use TeleinfoRecorder\Handler\PdoHandler;
+
+try {
+    $recorder = new Recorder('Home');
+
+    // StreamHandler
+    $recorder->pushHandler(new StreamHandler('/path/teleinfo.csv'));
+
+    // PdoHandler
+    $dbh = new PDO('mysql:dbname=teleinfo;host=localhost', 'teleinfo', 'teleinfo-password');
+    $recorder->pushHandler(new PdoHandler($dbh, 'Recorder'));
+
+    // Read record
+    $record = $recorder->readRecord();
+    // Write record
+    $recorder->writeRecord($record);
+} catch (Exception $e) {
+    echo $e->getMessage() . "\n";
+}
+
+```
