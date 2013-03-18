@@ -10,6 +10,9 @@ http://www.erdfdistribution.fr/medias/DTR_Generalites/ERDF-NOI-CPT_44E.pdf
 De nombreux schémas permettent de réaliser son propre démodulateur de la téléinformation, 
 pour sa part l'auteur a utilisé le démodulateur de www.suiviconso.fr, connecté à un Raspberry Pi.
 
+Note
+----
+Il s'agit pour le moment d'une gestion partielle (Heures pleines/Heures creuses) des données de la trame de la téléinformation.
 
 Pré-requis
 ----------
@@ -72,7 +75,7 @@ En cours......
 
 Author
 ------
-Thomas Bibard - thomas.bibard@neblion.net
+Thomas Bibard - thomas.bibard@neblion.net - https://twitter.com/tbibard
 
 License
 -------
