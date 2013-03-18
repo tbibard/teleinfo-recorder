@@ -14,7 +14,7 @@ pour sa part l'auteur a utilisé le démodulateur de www.suiviconso.fr, connect�
 Pré-requis
 ----------
  - PHP 5.3 ou supérieur
-
+ - [optional] PHPUnit 3.5+ pour exécuter les tests
 
 Installation
 ------------
@@ -65,3 +65,19 @@ try {
 }
 
 ```
+
+Docs
+----
+En cours......
+
+Author
+------
+Thomas Bibard - thomas.bibard@neblion.net
+
+License
+-------
+TeleinfoRecorder est sous licence MIT - voir le fichier LICENSE pour plus de détails.
+
+Crédits
+-------
+Cette librairie est inspirée de la librairie [Monolog](https://github.com/Seldaek/monolog)
