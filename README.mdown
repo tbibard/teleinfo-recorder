@@ -1,4 +1,4 @@
-TeleinfoRecorder - Lit et enregistre la trame téléinformation des compteurs EDF
+TeleinfoRecorder - Lit et enregistre la trame téléinformation des compteurs EDF [![Build Status](https://travis-ci.org/tbibard/teleinfo-recorder.png?branch=master)](https://travis-ci.org/tbibard/teleinfo-recorder)
 ===============================================================================
 
 TeleinfoRecorder, lit et enregistre la trame de téléinformation des compteurs électronique EDF.
