@@ -8,7 +8,7 @@ Spécifications techniques de la téléinformation:
 http://www.erdfdistribution.fr/medias/DTR_Generalites/ERDF-NOI-CPT_44E.pdf
 
 De nombreux schémas permettent de réaliser son propre démodulateur de la téléinformation, 
-pour sa part l'auteur a utilisé le démodulateur de www.suiviconso.fri, connecté à un Raspberry Pi.
+pour sa part l'auteur a utilisé le démodulateur de www.suiviconso.fr, connecté à un Raspberry Pi.
 
 Pré-requis
 ==========
