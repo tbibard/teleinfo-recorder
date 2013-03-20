@@ -130,6 +130,7 @@ class Recorder {
      */
     private function __checkRecord(array $record)
     {
+        /*
         $fields = array('datetime', 'ADCO', 'OPTARIF', 'ISOUSC', 'HCHP', 'HCHC', 
             'PTEC', 'IINST', 'IMAX', 'PAPP', 'HHPHC', 'MOTDETAT');
 
@@ -145,7 +146,7 @@ class Recorder {
                 throw new \LogicException($key . ' is not a valid key for record !');
             }
         }
-
+        */
         return true;
     }
 
