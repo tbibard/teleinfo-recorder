@@ -36,52 +36,78 @@ class PdoHandler extends AbstractHandler
     protected function write(array $record)
     {
         if (!$this->initialized) {
-            $this->initialize();
+            $this->initialize($record);
+        }
+
+        $data = array();
+        foreach ($record as $key => $value) {
+            $data[':' . $key] = $value;
         }
 
         try {
-        $this->statement->execute(array(
-            ':datetime' => $record['datetime'],
-            ':ptec'     => $record['ptec'],
-            ':hp'       => $record['hp'],
-            ':hc'       => $record['hc'],
-            ':iinst'    => $record['iinst'],
-            ':papp'     => $record['papp'],
-        ));
+            $this->statement->execute($data);
         } catch (\PDOException $e) {
             echo $e->getMessage() . "\n";
         }
-        echo "execute\n";
     }
 
-    private function initialize()
+    private function initialize($record)
     {
-        echo 'initialize....' . "\n";
+        $fields = array(
+            'ADCO'      => 'varchar(12) NOT NULL',
+            'OPTARIF'   => 'varchar(4)',
+            'ISOUSC'    => 'tinyint(6)',
+            'BASE'      => 'int(11)',
+            'HCHP'      => 'int(11)',
+            'HCHC'      => 'int(11)',
+            'EJPHN'     => 'int(11)',
+            'EJPHPM'    => 'int(11)',
+            'PEJP'      => 'tinyint(6)',
+            'BBRHCJB'   => 'int(11)',
+            'BBRHPJB'   => 'int(11)',
+            'BBRHCJW'   => 'int(11)',
+            'BBRHPJW'   => 'int(11)',
+            'BBRHCJR'   => 'int(11)',
+            'BBRHPJR'   => 'int(11)',
+            'PTEC'      => 'varchar(4)',
+            'DEMAIN'    => 'varchar(4)',
+            'IINST'     => 'tinyint(6)',
+            'ADPS'      => 'tinyint(6)',
+            'IMAX'      => 'tinyint(6)',
+            'PAPP'      => 'tinyint(6)',
+            'HHPHC'     => 'varchar(1)',
+            'MOTDETAT'  => 'varchar(6)'
+        );
 
         try {
 
+            $sqlCreate = 'CREATE TABLE IF NOT EXISTS `' . $this->tablename . '` (' .
+              '`id` int(11) NOT NULL AUTO_INCREMENT,' .
+              '`datetime` datetime NOT NULL';
+            // Parcours du reecord pour créer les champs de la trame
+            // le record a été contrôlé, tous les champs sont donc connus
+            foreach ($record as $key => $value) {
+                if ($key != 'datetime') {
+                    $sqlCreate .= ', `' . $key . '` ' . $fields[$key];
+                }
+            }
+            $sqlCreate .= ', PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci';
 
+            $this->pdo->exec($sqlCreate );
 
-        $this->pdo->exec(
-            'CREATE TABLE IF NOT EXISTS `' . $this->tablename . '` (
-              `id` int(11) NOT NULL AUTO_INCREMENT,
-              `datetime` datetime NOT NULL,
-              `ptec` varchar(5) COLLATE utf8_unicode_ci NOT NULL,
-              `hp` int(11) NOT NULL,
-              `hc` int(11) NOT NULL,
-              `iinst` int(11) NOT NULL,
-              `papp` int(11) NOT NULL,
-              PRIMARY KEY (`id`)
-            )'
-        );
+            $sqlInsert = 'INSERT INTO `' . $this->tablename . '` (';
+            $fields = $values = '';
+            foreach ($record as $key => $value) {
+                if (!empty($fields)) {
+                    $fields .= ',';
+                    $values .= ',';
+                }
+                $fields .= '`' . $key . '`';
+                $values .= ':' . $key;
+            }
+            $sqlInsert .= $fields . ') VALUES (' . $values . ')';
 
-        $this->statement = $this->pdo->prepare(
-            'INSERT INTO `' . $this->tablename .
-                '`(`datetime`, `ptec`, `hp`, `hc`, `iinst`, `papp`)' .
-                ' VALUES (:datetime, :ptec, :hp, :hc, :iinst, :papp)'
-        );
-            echo "jhjkhjkhjkhjkhjk\n";
-
+            $this->statement = $this->pdo->prepare($sqlInsert );
         } catch (\PDOException $e) {
             throw $e;
         }
