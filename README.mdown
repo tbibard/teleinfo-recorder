@@ -50,7 +50,7 @@ use TeleinfoRecorder\Handler\StreamHandler;
 use TeleinfoRecorder\Handler\PdoHandler;
 
 try {
-    $recorder = new Recorder('Home');
+    $recorder = new Recorder();
 
     // StreamHandler
     $recorder->pushHandler(new StreamHandler('/path/teleinfo.csv'));
@@ -59,10 +59,8 @@ try {
     $dbh = new PDO('mysql:dbname=teleinfo;host=localhost', 'teleinfo', 'teleinfo-password');
     $recorder->pushHandler(new PdoHandler($dbh, 'Recorder'));
 
-    // Read record
-    $record = $recorder->readRecord();
     // Write record
-    $recorder->writeRecord($record);
+    $recorder->write();
 } catch (Exception $e) {
     echo $e->getMessage() . "\n";
 }
