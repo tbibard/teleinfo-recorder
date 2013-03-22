@@ -14,14 +14,17 @@ namespace TeleinfoRecorder;
 use TeleinfoRecorder\Handler\HandlerInterface;
 
 class Recorder {
+
     /**
      * @var string $name
      */
     protected $name = '';
+
     /**
-     * @var string $device
+     * @var TeleinfoRecorder/Reader $reader
      */
-    protected $device = '/dev/ttyUSB0';
+    protected $reader = null;
+
     /**
      * var array $handlers
      */
@@ -30,20 +33,28 @@ class Recorder {
     /**
      * Constructor
      *
-     * @param string    $name Name of the counter
-     * @param string    $device Name of the device
+     * @param TeleinfoRecorder/Reader    $reader Teleinfo reader
      */
-    public function __construct($name, $device = null)
+    public function __construct($reader = null)
+    {
+        if (!is_null($reader)) {
+            $this->reader = $reader;
+        } else {
+            $this->reader = new Reader();
+        }
+    }
+
+    /**
+     * Set name of the counter
+     *
+     * @param string    $name Name of the counter
+     */
+    public function setName($name) 
     {
         if (empty($name)) {
             throw new \InvalidArgumentException('You have to set name of the counter !');
         } else {
             $this->name = $name;
-        }
-
-
-        if (!is_null($device)) {
-            $this->device = $device;
         }
     }
 
@@ -79,85 +90,120 @@ class Recorder {
          return array_shift($this->handlers);
      }
 
+    private function __calculateCheckSum($message)
+    {
+        // on retire le checksum fournit
+        $msg  = trim(substr($message, 0, -1));
+        // checksum
+        $sum = 0;
+        for ($i = 0; $i < strlen($msg); $i++) {
+            $sum += ord($msg[$i]);
+        }
+        $sum = $sum & 0x3F;
+        $sum += 0x20;
+        return chr($sum);
+    }
+
+    public function isValidMessage($message) {
+        $read = substr($message, -1);
+        $calc = $this->__calculateCheckSum($message);
+        if ($read === $calc) {
+            return true;
+        }
+
+        return false;
+    }
+
     /**
      * Read a record
      *
      */
-    public function readRecord()
+    public function getRecord()
     {
         $read = array();
-        $contents = '';
-        $handle = fopen($this->device, 'r');
 
-        if ($handle) {
-            // read device while not start of text
-            while(fread($handle,1) != chr(2));
+        $trame = $this->reader->getFrame();
 
-            // start of text
-            do {
-                $char = fread($handle, 1);
-                if ($char != chr(2)) {
-                    $contents .= $char;
-                }
-            } while ($char != chr(2));
-            // close
-            fclose($handle);
+        // create array frame
+        $lignes = explode(chr(10).chr(10), $trame);
 
-            // clean content
-            $contents = substr($contents, 1, -1);
-
-            // create array frame
-            $frame = explode(chr(10).chr(10), $contents);
-
-            // read each message in frame
-            foreach($frame as $message) {
-                $message = explode(chr(32), $message, 3);
-                list($key, $value, $checksum) = $message;
-                if (!empty($key)) {
-                    $read[$key] = $value;
-                }
+        // read each message in frame
+        foreach($lignes as $message) {
+            if (!$this->isValidMessage($message)) {
+                throw new \LogicException('Checksum n\'est pas valide, la trame a pu être altérée !');
             }
-
-            $date = new \DateTime('now');
-            $read['datetime'] = $date->format('Y-m-d H:i:s');
-
-            return $read;
+            $elements = explode(chr(32), $message, 3);
+            list($key, $value, $checksum) = $elements;
+            if (!empty($key)) {
+                $read[$key] = $value;
+            }
         }
+
+        return $read;
     }
 
     /**
-     * Check if a read record is valid
+     * Contrôle si l'enregistrement est valide, si il respecte les spécifications ERDF
+     *
+     * Ce contrôle ce borne pour le moment à vérifier si les clefs sont des clefs connus
+     * dans la spécification. Contrôle fonctionnel pour les compteurs de type:
+     * monophasé multarifs CBEMM + évolution ICC
+     *
+     * ToDO: gestion compteurs triphasé (CBETM)
+     * ToDO: gestion compteurs Jaune (CJE)
      */
     private function __checkRecord(array $record)
     {
-        /*
-        $fields = array('datetime', 'ADCO', 'OPTARIF', 'ISOUSC', 'HCHP', 'HCHC', 
-            'PTEC', 'IINST', 'IMAX', 'PAPP', 'HHPHC', 'MOTDETAT');
-
-        // Count fields number
-        if (count($record) != count($fields)) {
-            throw new \InvalidArgumentException('Number of fields is not valid !');
-        }
+        $fields = array(
+            'ADCO', 'OPTARIF', 'ISOUSC', 'BASE',
+            'HCHP', 'HCHC', // Option heures creuses
+            'EJPHN', 'EJPHPM', 'PEJP', // Option EJP
+            'BBRHCJB', 'BBRHPJB', 'BBRHCJW', 'BBRHPJW', 'BBRHCJR', 'BBRHPJR', // Option Tempo
+            'PTEC', 'DEMAIN', 'IINST', 'ADPS', 'IMAX', 'PAPP', 'HHPHC', 'MOTDETAT'
+        );
 
         $fieldsKeys = array_flip($fields);
 
         foreach ($record as $key => $value) {
             if (!array_key_exists($key, $fieldsKeys)) {
-                throw new \LogicException($key . ' is not a valid key for record !');
+                return false;
             }
         }
-        */
+
         return true;
+    }
+
+    /**
+     * Contrôle si un enregistrement est valide
+     *
+     * @parma array $record
+     * @return bool
+     */
+    public function isValidRecord(array $record)
+    {
+        if ($this->__checkRecord($record)) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
      * Write record
      */
-    public function writeRecord(array $record)
+    public function write()
     {
+        $record = $this->getRecord();
+
         if (!$this->__checkRecord($record)) {
             throw new \LogicException('Record is not a valid record!');
         }
+
+        // ajout de la date et de l'heure de la lecture
+        $date = new \DateTime('now');
+        $record['datetime'] = $date->format('Y-m-d H:i:s');
+
+        print_r($record);
 
         foreach ($this->handlers as $handler) {
             $handler->handle($record);
