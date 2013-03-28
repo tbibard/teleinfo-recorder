@@ -34,15 +34,17 @@ class SenseFeedHandler extends AbstractHandler
         $client = new Client('http://api.sen.se');
         foreach ($this->feeds as $key => $feedId) {
             if (array_key_exists($key, $record)) {
+                $date = new \DateTime($record['datetime']);
+
                 $request = $client->post('/events', null, '{
                             "feed_id": ' . $feedId . ',
-                            "value": ' . $record[$key] . '
+                            "value": ' . $record[$key] . ',
+                            "timetag": "' . $date->format('c') . '"
                 }');
 
                 $request->addHeader('sense_key', $this->apiKey);
                 $response = $request->send();
             }
         }
-        fwrite($this->stream, (string) $record['formatted'] . "\n");
     }
 }
