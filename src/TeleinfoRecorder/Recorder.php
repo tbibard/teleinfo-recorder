@@ -30,6 +30,15 @@ class Recorder {
      */
     protected $handlers = array();
 
+
+    protected $fields = array(
+            'ADCO' => 'text', 'OPTARIF' => 'text', 'ISOUSC' => 'int', 'BASE' => 'int',
+            'HCHP' => 'int', 'HCHC' => 'int', // Option heures creuses
+            'EJPHN' => 'int', 'EJPHPM' => 'int', 'PEJP' => 'int', // Option EJP
+            'BBRHCJB' => 'int', 'BBRHPJB' => 'int', 'BBRHCJW' => 'int', 'BBRHPJW' => 'int', 'BBRHCJR' => 'int', 'BBRHPJR' => 'int', // Option Tempo
+            'PTEC' => 'text', 'DEMAIN'=> 'text', 'IINST' => 'int', 'ADPS' => 'int', 'IMAX' => 'int', 'PAPP' => 'int', 'HHPHC' => 'text', 'MOTDETAT' => 'text'
+        );
+
     /**
      * Constructor
      *
@@ -135,7 +144,11 @@ class Recorder {
             $elements = explode(chr(32), $message, 3);
             list($key, $value, $checksum) = $elements;
             if (!empty($key)) {
-                $read[$key] = $value;
+                if ($this->fields[$key] == 'int') {
+                    $read[$key] = (int) $value;
+                } else {
+                    $read[$key] = $value;
+                }
             }
         }
 
@@ -154,18 +167,8 @@ class Recorder {
      */
     private function __checkRecord(array $record)
     {
-        $fields = array(
-            'ADCO', 'OPTARIF', 'ISOUSC', 'BASE',
-            'HCHP', 'HCHC', // Option heures creuses
-            'EJPHN', 'EJPHPM', 'PEJP', // Option EJP
-            'BBRHCJB', 'BBRHPJB', 'BBRHCJW', 'BBRHPJW', 'BBRHCJR', 'BBRHPJR', // Option Tempo
-            'PTEC', 'DEMAIN', 'IINST', 'ADPS', 'IMAX', 'PAPP', 'HHPHC', 'MOTDETAT'
-        );
-
-        $fieldsKeys = array_flip($fields);
-
         foreach ($record as $key => $value) {
-            if (!array_key_exists($key, $fieldsKeys)) {
+            if (!array_key_exists($key, $this->fields)) {
                 return false;
             }
         }

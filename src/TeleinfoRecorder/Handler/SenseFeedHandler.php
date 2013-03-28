@@ -25,6 +25,16 @@ class SenseFeedHandler extends AbstractHandler
         $this->feeds    = $feeds;
     }
 
+    protected function getDefaultFormatter()
+    {
+        return null;
+    }
+
+    /**
+     * Write
+     *
+     * TODO: check the response
+     */
     public function write(array $record)
     {
         if (empty($this->feeds)) {
