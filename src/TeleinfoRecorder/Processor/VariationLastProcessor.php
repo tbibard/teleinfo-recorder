@@ -18,7 +18,6 @@ class VariationLastProcessor
     public function __construct($path)
     {
         $this->path = $path;
-        echo 'path: ' . $path . "\n";
     }
 
 

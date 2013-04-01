@@ -229,8 +229,6 @@ class Recorder {
         $date = new \DateTime('now');
         $record['datetime'] = $date->format('Y-m-d H:i:s');
 
-        echo "avant processor:\n";
-        print_r($record);
         $keys = array_keys($record);
         foreach ($keys as $key) {
             if (!empty($this->processors[$key])) {
@@ -239,8 +237,6 @@ class Recorder {
                 }
             }
         }
-        echo "apres processor:\n";
-        print_r($record);
 
         foreach ($this->handlers as $handler) {
             $handler->handle($record);
