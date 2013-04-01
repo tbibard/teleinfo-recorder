@@ -26,6 +26,11 @@ class Recorder {
     protected $reader = null;
 
     /**
+     * var array $processors
+     */
+    protected $processors = array();
+
+    /**
      * var array $handlers
      */
     protected $handlers = array();
@@ -73,6 +78,24 @@ class Recorder {
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * Add a processor
+     *
+     * @param callable $callback function or class with __invoke
+     */
+    public function pushProcessor($callback, $key)
+    {
+        if (!is_callable($callback)) {
+            throw new \InvalidArgumentException('Processors must be valid callables (callback or object with an __invoke method), '.var_export($callback, true).' given');
+        }
+
+        if (!array_key_exists($key, $this->processors)) {
+            $this->processors[$key] = array();
+        }
+
+        array_unshift($this->processors[$key], $callback);
     }
 
     /**
@@ -205,6 +228,19 @@ class Recorder {
         // ajout de la date et de l'heure de la lecture
         $date = new \DateTime('now');
         $record['datetime'] = $date->format('Y-m-d H:i:s');
+
+        echo "avant processor:\n";
+        print_r($record);
+        $keys = array_keys($record);
+        foreach ($keys as $key) {
+            if (!empty($this->processors[$key])) {
+                foreach ($this->processors[$key] as $processor) {
+                    $record[$key] = call_user_func($processor, $key, $record[$key]);
+                }
+            }
+        }
+        echo "apres processor:\n";
+        print_r($record);
 
         foreach ($this->handlers as $handler) {
             $handler->handle($record);
