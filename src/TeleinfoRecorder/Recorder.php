@@ -80,7 +80,7 @@ class Recorder {
         return $this->name;
     }
 
-    /**
+    /**zo
      * Add a processor
      *
      * @param callable $callback function or class with __invoke
@@ -229,14 +229,30 @@ class Recorder {
         $date = new \DateTime('now');
         $record['datetime'] = $date->format('Y-m-d H:i:s');
 
+        print_r($record);
+
+        // Traitement processors liés à une clef du record
         $keys = array_keys($record);
         foreach ($keys as $key) {
-            if (!empty($this->processors[$key])) {
-                foreach ($this->processors[$key] as $processor) {
+            if (array_key_exists($key, $this->processors) and is_array($this->processors[$key])) {
+                while (!empty($this->processors[$key])) {
+                    $processor = array_shift($this->processors[$key]);
                     $record[$key] = call_user_func($processor, $key, $record[$key]);
                 }
             }
         }
+
+        // Traitement processors non liés à une clef du record
+        foreach ($this->processors as $key => $keyProcessors) {
+            if (!array_key_exists($key, $record)) {
+                while (!empty($this->processors[$key])) {
+                    $processor = array_shift($this->processors[$key]);
+                    $record[$key] = call_user_func($processor, $record);
+                }
+            }
+        }
+
+        print_r($record);
 
         foreach ($this->handlers as $handler) {
             $handler->handle($record);
