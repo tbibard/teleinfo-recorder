@@ -229,8 +229,6 @@ class Recorder {
         $date = new \DateTime('now');
         $record['datetime'] = $date->format('Y-m-d H:i:s');
 
-        print_r($record);
-
         // Traitement processors liés à une clef du record
         $keys = array_keys($record);
         foreach ($keys as $key) {
@@ -251,8 +249,6 @@ class Recorder {
                 }
             }
         }
-
-        print_r($record);
 
         foreach ($this->handlers as $handler) {
             $handler->handle($record);
