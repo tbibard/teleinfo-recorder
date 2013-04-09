@@ -13,6 +13,7 @@ namespace TeleinfoRecorder;
 
 use TeleinfoRecorder\Recorder;
 use TeleinfoRecorder\Handler\StreamHandler;
+use TeleinfoRecorder\Processor\SumFieldsProcessor;
 
 class RecorderTest extends \PHPUnit_Framework_TestCase
 {
@@ -68,6 +69,71 @@ class RecorderTest extends \PHPUnit_Framework_TestCase
      */
     public function testgetRecord()
     {
+        $recorder = new Recorder($this->__getReader());
+        $this->assertEquals(array(
+                'ADCO'      => '020422624973',
+                'OPTARIF'   => 'HC..',
+                'ISOUSC'    => '45',
+                'HCHC'      => '028835516',
+                'HCHP'      => '053241739',
+                'PTEC'      => 'HP..',
+                'IINST'     => '007',
+                'IMAX'      => '041',
+                'PAPP'      => '01720',
+                'HHPHC'     => 'D',
+                'MOTDETAT'  => '000000'
+            ), $recorder->getRecord());
+    }
+
+    /**
+     * @covers TeleinfoRecorder\Recorder::isValidRecord
+     * @covers TeleinfoRecorder\Recorder::__checkRecord
+     */
+    public function testIsValidRecord()
+    {
+        $recorder = new Recorder();
+        $this->assertTrue($recorder->isValidRecord(array('ADCO' => '45454545')));
+        $this->assertFalse($recorder->isValidRecord(array('AAAADCO' => '45454545')));
+    }
+
+    /**
+     * @covers TeleinfoRecorder\Recorder::__processorsWithInternalKeys
+     */
+    public function testProcessorsWithExternalKeys()
+    {
+        $reader = $this->__getReader();
+
+        $reflection_class = new \ReflectionClass('\\TeleinfoRecorder\\Recorder');
+        $method = $reflection_class->getMethod('__processorsWithExternalKeys');
+        $method->setAccessible(true);
+
+        $recorder = new Recorder($reader);
+        $sumconso = new SumFieldsProcessor(array('HCHP', 'HCHC'));
+        $recorder->pushProcessor($sumconso, 'CONSO');
+        $record = $recorder->getRecord();
+
+        $this->assertEquals(array(
+                'ADCO'      => '020422624973',
+                'OPTARIF'   => 'HC..',
+                'ISOUSC'    => '45',
+                'HCHC'      => '028835516',
+                'HCHP'      => '053241739',
+                'PTEC'      => 'HP..',
+                'IINST'     => '007',
+                'IMAX'      => '041',
+                'PAPP'      => '01720',
+                'HHPHC'     => 'D',
+                'MOTDETAT'  => '000000',
+                'CONSO'     => 82077255
+            ), $method->invoke($recorder, $record));
+    }
+
+    /**
+     *
+     *
+     */
+    private function __getReader()
+    {
         // Création bouchon pour _readFrame
         $reader = $this->getMock('TeleinfoRecorder\Reader');
         $reader->expects($this->any())
@@ -94,30 +160,7 @@ HHPHC D /
 
 MOTDETAT 000000 B'));
 
-        $recorder = new Recorder($reader);
-        $this->assertEquals(array(
-                'ADCO'      => '020422624973',
-                'OPTARIF'   => 'HC..',
-                'ISOUSC'    => '45',
-                'HCHC'      => '028835516',
-                'HCHP'      => '053241739',
-                'PTEC'      => 'HP..',
-                'IINST'     => '007',
-                'IMAX'      => '041',
-                'PAPP'      => '01720',
-                'HHPHC'     => 'D',
-                'MOTDETAT'  => '000000'
-            ), $recorder->getRecord());
-    }
+    return $reader;
 
-    /**
-     * @covers TeleinfoRecorder\Recorder::isValidRecord
-     * @covers TeleinfoRecorder\Recorder::__checkRecord
-     */
-    public function testIsValidRecord()
-    {
-        $recorder = new Recorder();
-        $this->assertTrue($recorder->isValidRecord(array('ADCO' => '45454545')));
-        $this->assertFalse($recorder->isValidRecord(array('AAAADCO' => '45454545')));
     }
 }

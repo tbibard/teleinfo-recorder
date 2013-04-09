@@ -202,7 +202,7 @@ class Recorder {
     /**
      * Contrôle si un enregistrement est valide
      *
-     * @parma array $record
+     * @param array $record
      * @return bool
      */
     public function isValidRecord(array $record)
@@ -212,6 +212,64 @@ class Recorder {
         }
 
         return false;
+    }
+
+    /**
+     * Execute les processeurs avec une clef interne au record
+     *
+     * @param array $record
+     * @return array
+     */
+    private function __processorsWithInternalKeys($record)
+    {
+        // Traitement processors liés à une clef du record
+        $keys = array_keys($record);
+        foreach ($keys as $key) {
+            if (array_key_exists($key, $this->processors) and is_array($this->processors[$key])) {
+                while (!empty($this->processors[$key])) {
+                    $processor = array_shift($this->processors[$key]);
+                    $record[$key] = call_user_func($processor, $key, $record[$key]);
+                }
+            }
+        }
+
+        return $record;
+    }
+
+    /**
+     * Execute les processors avec une clef externe au record
+     *
+     * @param array $record
+     * @return array
+     */
+    private function __processorsWithExternalKeys($record)
+    {
+        // Traitement processors non liés à une clef du record
+        foreach ($this->processors as $key => $keyProcessors) {
+            if (!array_key_exists($key, $record)) {
+                while (!empty($this->processors[$key])) {
+                    $processor = array_shift($this->processors[$key]);
+                    $record[$key] = call_user_func($processor, $record);
+                }
+            }
+        }
+
+        return $record;
+    }
+
+    /**
+     * Ajoute une date/heure au record
+     *
+     * @param array $record
+     * return array
+     */
+    private function __addDateTime($record)
+    {
+        // ajout de la date et de l'heure de la lecture
+        $date = new \DateTime('now');
+        $record['datetime'] = $date->format('Y-m-d H:i:s');
+
+        return $record;
     }
 
     /**
@@ -225,30 +283,9 @@ class Recorder {
             throw new \LogicException('Record is not a valid record!');
         }
 
-        // ajout de la date et de l'heure de la lecture
-        $date = new \DateTime('now');
-        $record['datetime'] = $date->format('Y-m-d H:i:s');
-
-        // Traitement processors liés à une clef du record
-        $keys = array_keys($record);
-        foreach ($keys as $key) {
-            if (array_key_exists($key, $this->processors) and is_array($this->processors[$key])) {
-                while (!empty($this->processors[$key])) {
-                    $processor = array_shift($this->processors[$key]);
-                    $record[$key] = call_user_func($processor, $key, $record[$key]);
-                }
-            }
-        }
-
-        // Traitement processors non liés à une clef du record
-        foreach ($this->processors as $key => $keyProcessors) {
-            if (!array_key_exists($key, $record)) {
-                while (!empty($this->processors[$key])) {
-                    $processor = array_shift($this->processors[$key]);
-                    $record[$key] = call_user_func($processor, $record);
-                }
-            }
-        }
+        $record = $this->__addDateTime($record);
+        $record = $this->__processorsWithInternalKeys($record);
+        $record = $this->__processorsWithExternalKeys($record);
 
         foreach ($this->handlers as $handler) {
             $handler->handle($record);
