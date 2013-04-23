@@ -13,11 +13,13 @@ namespace TeleinfoRecorder\Processor;
 
 class VariationLastProcessor
 {
-    protected $path = '/tmp/';
+    protected $path     = '/tmp/';
+    protected $period   = null;
 
-    public function __construct($path)
+    public function __construct($path, $period = null)
     {
-        $this->path = $path;
+        $this->path     = $path;
+        $this->period   = $period;
     }
 
 
@@ -36,9 +38,18 @@ class VariationLastProcessor
 
         if (file_exists($filename)) {
             // read previous store value
-            $read = file_get_contents($filename);
+            $readStr = file_get_contents($filename);
+            $read = explode(';', $readStr);
+
             // calculate variation
-            $value =  $value - $read;
+            if (!empty($this->period)) {
+                $periodDiff = strtotime('now') - $read[1];
+                if ($periodDiff >= $this->period * 2) {
+                    $value = floor(($value - $read[0]) / ($periodDiff / $this->period));
+                }
+            } else {
+                $value =  $value - $read[0];
+            }
         } else {
             // check if dir exist
             if (!file_exists(dirname($filename))) {
@@ -49,7 +60,7 @@ class VariationLastProcessor
         }
 
         // write last read value in file
-        file_put_contents($filename, $write);
+        file_put_contents($filename, $write . ';' . strtotime('now'));
 
         return $value;
     }
