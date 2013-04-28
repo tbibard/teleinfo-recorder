@@ -42,13 +42,13 @@ class VariationLastProcessor
             $read = explode(';', $readStr);
 
             // calculate variation
+            $value =  $value - $read[0];
+
             if (!empty($this->period)) {
                 $periodDiff = strtotime('now') - $read[1];
                 if ($periodDiff >= $this->period * 2) {
-                    $value = floor(($value - $read[0]) / ($periodDiff / $this->period));
+                    $value = floor($value / ($periodDiff / $this->period));
                 }
-            } else {
-                $value =  $value - $read[0];
             }
         } else {
             // check if dir exist
