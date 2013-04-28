@@ -80,7 +80,7 @@ class Recorder {
         return $this->name;
     }
 
-    /**zo
+    /**
      * Add a processor
      *
      * @param callable $callback function or class with __invoke
