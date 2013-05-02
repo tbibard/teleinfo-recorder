@@ -84,6 +84,7 @@ class Recorder {
      * Add a processor
      *
      * @param callable $callback function or class with __invoke
+     * @param string $key Result key after processing record
      */
     public function pushProcessor($callback, $key)
     {
@@ -91,11 +92,7 @@ class Recorder {
             throw new \InvalidArgumentException('Processors must be valid callables (callback or object with an __invoke method), '.var_export($callback, true).' given');
         }
 
-        if (!array_key_exists($key, $this->processors)) {
-            $this->processors[$key] = array();
-        }
-
-        array_unshift($this->processors[$key], $callback);
+        array_push($this->processors, array('key' => $key, 'callback' => $callback));
     }
 
     /**
@@ -215,49 +212,6 @@ class Recorder {
     }
 
     /**
-     * Execute les processeurs avec une clef interne au record
-     *
-     * @param array $record
-     * @return array
-     */
-    private function __processorsWithInternalKeys($record)
-    {
-        // Traitement processors liés à une clef du record
-        $keys = array_keys($record);
-        foreach ($keys as $key) {
-            if (array_key_exists($key, $this->processors) and is_array($this->processors[$key])) {
-                while (!empty($this->processors[$key])) {
-                    $processor = array_shift($this->processors[$key]);
-                    $record[$key] = call_user_func($processor, $key, $record[$key]);
-                }
-            }
-        }
-
-        return $record;
-    }
-
-    /**
-     * Execute les processors avec une clef externe au record
-     *
-     * @param array $record
-     * @return array
-     */
-    private function __processorsWithExternalKeys($record)
-    {
-        // Traitement processors non liés à une clef du record
-        foreach ($this->processors as $key => $keyProcessors) {
-            if (!array_key_exists($key, $record)) {
-                while (!empty($this->processors[$key])) {
-                    $processor = array_shift($this->processors[$key]);
-                    $record[$key] = call_user_func($processor, $record);
-                }
-            }
-        }
-
-        return $record;
-    }
-
-    /**
      * Ajoute une date/heure au record
      *
      * @param array $record
@@ -272,21 +226,41 @@ class Recorder {
         return $record;
     }
 
+    private function __processing($record)
+    {
+        if (!empty($this->processors)) {
+            while (!empty($this->processors)) {
+                $processor = array_shift($this->processors);
+                $record[$processor['key']] = call_user_func($processor['callback'], $record);
+            }
+        }
+
+        return $record;
+    }
+
+
     /**
      * Write record
      */
     public function write()
     {
+        // Lecture d'un enregistrement sur le bus
         $record = $this->getRecord();
 
+        // Vérification de l'intégrité de l'enregistrement
         if (!$this->__checkRecord($record)) {
             throw new \LogicException('Record is not a valid record!');
         }
 
+        // Ajout de la date de lecture de l'enregistrement
         $record = $this->__addDateTime($record);
-        $record = $this->__processorsWithInternalKeys($record);
-        $record = $this->__processorsWithExternalKeys($record);
 
+        // Traitement processors
+        $record = $this->__processing($record);
+
+        print_r($record);
+
+        // Traitement final de l'enregistrement
         foreach ($this->handlers as $handler) {
             $handler->handle($record);
         }
