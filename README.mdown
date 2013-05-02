@@ -28,7 +28,7 @@ et donc installable via [Composer](http://getcomposer.org/).
 ```json
 {
     "require": {
-        "tbibard/teleinfo-recorder": "@dev"
+        "tbibard/teleinfo-recorder": "0.1.*"
     }
 }
 ```
