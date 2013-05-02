@@ -14,6 +14,7 @@ namespace TeleinfoRecorder;
 use TeleinfoRecorder\TestCase;
 use TeleinfoRecorder\Recorder;
 use TeleinfoRecorder\Handler\StreamHandler;
+use TeleinfoRecorder\Processor\CopyProcessor;
 use TeleinfoRecorder\Processor\SumFieldsProcessor;
 
 class RecorderTest extends TestCase
@@ -30,6 +31,18 @@ class RecorderTest extends TestCase
     }
 
     /**
+     * @covers TeleinfoRecorder\Recorder::pushProcessor
+     */
+    public function testPushProcessor()
+    {
+        $recorder = new Recorder();
+        $copy = new CopyProcessor('HCHC');
+        $this->assertEquals(1, $recorder->pushProcessor($copy, 'Key1'));
+        $this->assertEquals(2, $recorder->pushProcessor($copy, 'Key1'));
+        $this->assertNotEquals(2, $recorder->pushProcessor($copy, 'Key1'));
+    }
+
+    /**
      * @covers TeleinfoRecorder\Recorder::pushHandler
      */
     public function testPushHandler()
@@ -37,6 +50,7 @@ class RecorderTest extends TestCase
         $recorder = new Recorder();
         $this->assertEquals(1, $recorder->pushHandler(new StreamHandler('/tmp/file1.txt')));
         $this->assertEquals(2, $recorder->pushHandler(new StreamHandler('/tmp/file2.txt')));
+        $this->assertNotEquals(2, $recorder->pushHandler(new StreamHandler('/tmp/file3.txt')));
     }
 
     /**

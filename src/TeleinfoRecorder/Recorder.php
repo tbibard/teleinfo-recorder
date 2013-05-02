@@ -92,7 +92,7 @@ class Recorder {
             throw new \InvalidArgumentException('Processors must be valid callables (callback or object with an __invoke method), '.var_export($callback, true).' given');
         }
 
-        array_push($this->processors, array('key' => $key, 'callback' => $callback));
+        return array_push($this->processors, array('key' => $key, 'callback' => $callback));
     }
 
     /**
