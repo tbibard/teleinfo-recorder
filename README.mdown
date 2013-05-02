@@ -49,6 +49,9 @@ require 'vendor/autoload.php';
 use TeleinfoRecorder\Recorder;
 use TeleinfoRecorder\Handler\StreamHandler;
 use TeleinfoRecorder\Handler\PdoHandler;
+use TeleinfoRecorder\Processor\CopyProcessor;
+use TeleinfoRecorder\Processor\VariationLastProcessor;
+use TeleinfoRecorder\Processor\SumFieldsProcessor;
 
 try {
     $recorder = new Recorder();
