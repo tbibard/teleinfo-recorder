@@ -1,0 +1,57 @@
+TeleinfoRecorder Handlers
+=========================
+
+Les handlers permettent de gérer les points d'enregistrement de votre bus de télé-information.
+
+Les différents handlers existant:
+
+* **Stream:** enregistrement dans des fichiers
+* **PdoHandler:** enregistrement en base de données via PDO
+* **CosmFeedHandler:** enregistrement dans un feed sur la plateforme [Cosm.com](https://cosm.com/)
+* **SenseFeedHandler:** enregistrement dans un feed sur la plateforme [Sen.se](http://open.sen.se/)
+
+Stream
+======
+Enregistrement dans des fichiers de type csv (fichier plat avec séparateur).
+Si le fichier n'existe pas il est créé, sinon les enregistrements sont ajoutés à la fin du fichier.
+
+```php
+    // StreamHandler
+    $recorder->pushHandler(new StreamHandler('/path/teleinfo.csv'));
+```
+Par défaut le fichier plat type csv utilise le formatage suivant:
+* délimiteur: ;
+* enclosure: "
+
+Il est possible de modifier le formatage par défaut en injectant un objet CsvFormatter de la façon suivante:
+
+```php
+    // StreamHandler
+    $stream = new StreamHandler('/path/teleinfo.csv');
+    $stream->setFormatter(new CsvFormatter(array('delimiter' => '|')));
+```
+
+PdoHandler
+==========
+Enregistrement en base de données via PDO, fonctionnement testé avec les bases de données suivantes:
+* MySQL
+* SQLite
+
+La base de données doit au préalable être créée.
+Lors de la première utilisation, première tentative d'enregistrement la table sera générée.
+
+```php
+    // PdoHandler
+    $dbmysql = new PDO('mysql:dbname=teleinfo;host=localhost', 'teleinfo', 'teleinfo42');
+    $pdomysql = new PdoHandler($dbmysql, 'Releve');
+    $recorder->pushHandler($pdomysql);
+
+    $dbsqlite = new PDO('sqlite:teleinfo.db');
+    $pdosqlite = new PdoHandler($dbsqlite, 'Releve');
+    $recorder->pushHandler($pdosqlite);
+```
+
+Si vous ajoutez par la suite des index à votre enregistrement vous devrez effectuez vous même 
+la modification de votre table (requête ALTER).
+
+

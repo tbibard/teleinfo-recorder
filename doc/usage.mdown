@@ -1,0 +1,98 @@
+Utiliser TeleinfoRecorder
+=========================
+
+TeleinfoRecorder, lit et enregistre la trame de téléinformation des compteurs électronique EDF.
+La trame lue peut-être enregistrée dans un fichier (type csv), une base de données (via PDO) 
+ou sur des plateformes type Cosm.com ou Sen.se.
+
+Principe d'utilisation
+----------------------
+Création d'un fichier php, on instancie un objet _Recorder_, on ajoute à ce recorder un ou plusieurs
+**handlers** permettant d'enregistrer les données de la télé-information et au besoin au procède à quelques
+opérations sur les données avant enregistrement via les **processors**.
+
+Ce script est ensuite ajouté dans une crontab afin de l'éxécuter périodiqement.
+
+```php
+<?php
+require 'vendor/autoload.php';
+
+use TeleinfoRecorder\Recorder;
+use TeleinfoRecorder\Handler\StreamHandler;
+use TeleinfoRecorder\Handler\PdoHandler;
+use TeleinfoRecorder\Processor\CopyProcessor;
+use TeleinfoRecorder\Processor\VariationLastProcessor;
+use TeleinfoRecorder\Processor\SumFieldsProcessor;
+
+try {
+    $recorder = new Recorder();
+
+    // StreamHandler
+    $recorder->pushHandler(new StreamHandler('/path/teleinfo.csv'));
+
+    // PdoHandler
+    $dbh = new PDO('mysql:dbname=teleinfo;host=localhost', 'teleinfo', 'teleinfo-password');
+    $recorder->pushHandler(new PdoHandler($dbh, 'Teleinfo'));
+
+    // Sen.se feed handler
+    $sense = new SenseFeedHandler('Your-API-Key', array(
+                'HCHP' => FeedID,
+                'HCHC' => FeedID,
+            ));
+    $recorder->pushHandler($sense);
+
+    // Cosm.com feed handler
+    $cosm = new CosmFeedHandler('Your-API-Key', FeedNumber, array('HCHP', 'HCHC', 'CONSO'));
+    $recorder->pushHandler($cosm);
+
+    // Ajout de processors
+    // Copy processor: copie simplement un index de l'enregistrement vers un autre index
+    $copy = new CopyProcessor('HCHP');
+    $recorder->pushProcessor($copy, 'IndexHP');
+
+    // Variation processor: calcul la différence entre le relevé courant et le précédent
+    $variationHCHC = new VariationLastProcessor('HCHC', __DIR__, 60);
+    $variationHCHP = new VariationLastProcessor('HCHP', __DIR__, 60);
+    $recorder->pushProcessor($variationHCHC, 'HCvariation');
+    $recorder->pushProcessor($variationHCHP, 'HPvariation');
+
+    // Sum processor: calcul la somme de deux index du relevé
+    $sumconso = new SumFieldsProcessor(array('HCvariation', 'HPvariation'));
+    $recorder->pushProcessor($sumconso, 'CONSO');
+
+    // Write record
+    $recorder->write();
+} catch (Exception $e) {
+    echo $e->getMessage() . "\n";
+}
+
+```
+
+## Handlers
+
+* **Stream:** enregistrement dans des fichiers
+* **PdoHandler:** enregistrement en base de données via PDO
+* **CosmFeedHandler:** enregistrement dans un feed sur la plateforme [Cosm.com](https://cosm.com/)
+* **SenseFeedHandler:** enregistrement dans un feed sur la plateforme [Sen.se](http://open.sen.se/)
+
+## Processors
+
+* **Copy:** permet de copier un index de l'enregistrement dans un nouvel index
+* **SumFields:** permet d'additionner les valeurs de certains index de l'enregistrement
+* **VariationLast:** permet de récupérer la différence depuis le dernier relevé.
+
+Docs
+----
+Voir le dossier _doc_ pour plus de détails....
+
+Author
+------
+Thomas Bibard - thomas.bibard@neblion.net - https://twitter.com/tbibard
+
+License
+-------
+TeleinfoRecorder est sous licence MIT - voir le fichier LICENSE pour plus de détails.
+
+Crédits
+-------
+Cette librairie est inspirée de la librairie [Monolog](https://github.com/Seldaek/monolog)
