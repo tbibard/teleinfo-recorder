@@ -70,6 +70,7 @@ class RecorderTest extends TestCase
 
     /**
      * @covers TeleinfoRecorder\Recorder::isValidMessage
+     * @covers TeleinfoRecorder\Recorder::_calculateCheckSum
      */
     public function testIsValidMessage()
     {
