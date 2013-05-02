@@ -46,8 +46,8 @@ class PdoHandler extends AbstractHandler
 
         try {
             $this->statement->execute($data);
-        } catch (\PDOException $e) {
-            echo $e->getMessage() . "\n";
+        } catch (\Exception $e) {
+            throw $e;
         }
     }
 
@@ -82,18 +82,23 @@ class PdoHandler extends AbstractHandler
         try {
 
             $sqlCreate = 'CREATE TABLE IF NOT EXISTS `' . $this->tablename . '` (' .
-              '`id` int(11) NOT NULL AUTO_INCREMENT,' .
               '`datetime` datetime NOT NULL';
             // Parcours du reecord pour créer les champs de la trame
             // le record a été contrôlé, tous les champs sont donc connus
             foreach ($record as $key => $value) {
-                if ($key != 'datetime') {
+                if (array_key_exists($key, $fields)) {
                     $sqlCreate .= ', `' . $key . '` ' . $fields[$key];
+                } else {
+                    if ($key != 'datetime') {
+                        $unknownKeysType = array('integer' => 'int(11)', 'string' => 'varchar(100)');
+                        $sqlCreate .= ', `' . $key . '` ' . $unknownKeysType[gettype($record[$key])];
+                    }
                 }
             }
-            $sqlCreate .= ', PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci';
+            $sqlCreate .= ')';
 
             $this->pdo->exec($sqlCreate );
+            $this->initialized = true;
 
             $sqlInsert = 'INSERT INTO `' . $this->tablename . '` (';
             $fields = $values = '';
@@ -106,11 +111,9 @@ class PdoHandler extends AbstractHandler
                 $values .= ':' . $key;
             }
             $sqlInsert .= $fields . ') VALUES (' . $values . ')';
-
-            $this->statement = $this->pdo->prepare($sqlInsert );
+            $this->statement = $this->pdo->prepare($sqlInsert);
         } catch (\PDOException $e) {
             throw $e;
         }
-        $this->initialized = true;
     }
 }

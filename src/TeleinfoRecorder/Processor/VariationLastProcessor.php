@@ -49,7 +49,7 @@ class VariationLastProcessor
             if (!empty($this->period)) {
                 $periodDiff = strtotime('now') - $read[1];
                 if ($periodDiff >= $this->period * 2) {
-                    $value = floor($value / ($periodDiff / $this->period));
+                    $value = (int) floor($value / ($periodDiff / $this->period));
                 }
             }
         } else {
