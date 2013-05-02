@@ -119,6 +119,11 @@ class Recorder {
          return array_shift($this->handlers);
      }
 
+    /**
+     * Calculate checksum for a message
+     *
+     * @see http://www.erdfdistribution.fr/medias/DTR_Racc_Comptage/ERDF-NOI-CPT_02E.pdf (page 12/60)
+     */
     private function __calculateCheckSum($message)
     {
         // on retire le checksum fournit
@@ -133,6 +138,13 @@ class Recorder {
         return chr($sum);
     }
 
+    /**
+     * Check validity of a message
+     *
+     * @parma string $message
+     * @return bool true|false
+     *
+     */
     public function isValidMessage($message) {
         $read = substr($message, -1);
         $calc = $this->__calculateCheckSum($message);
@@ -226,6 +238,13 @@ class Recorder {
         return $record;
     }
 
+    /**
+     * Traitement des processeurs
+     *
+     * @param array $record
+     * @return array
+     *
+     */
     private function __processing($record)
     {
         if (!empty($this->processors)) {
@@ -257,8 +276,6 @@ class Recorder {
 
         // Traitement processors
         $record = $this->__processing($record);
-
-        print_r($record);
 
         // Traitement final de l'enregistrement
         foreach ($this->handlers as $handler) {
