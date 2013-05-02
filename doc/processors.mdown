@@ -1,0 +1,60 @@
+TeleinfoRecorder Processors
+===========================
+
+Les processors permettent d'effectuer des traitements sur une lecture du bus de télé-information
+avant enregistrement via les handlers.
+
+Les différents processors existant:
+
+* **Copy:** permet de copier un index de l'enregistrement dans un nouvel index
+* **SumFields:** permet d'additionner les valeurs de certains index de l'enregistrement
+* **VariationLast:** permet de récupérer la différence depuis le dernier relevé.
+
+Les processors sont empilés les uns à la suite des autres et sont par la suite traités en 
+mode FIFO (First In First Out).
+
+
+Copy
+----
+Ce processor recopie simplement la valeur de présente à un index de l'enregistrement dansun autre index.
+
+```php
+$copy = new CopyProcessor('HCHP');
+$recorder->pushProcessor($copy, 'IndexHP');
+```
+Dans cet exemple l'enregistrement disposera d'un nouvel index nommé IndexHP contenant 
+la même valeur qu'à l'index HCHP.
+
+SumFields
+---------
+Ce processor permet d'effectuer la somme arithmétique de deux index.
+
+```php
+$sumconso = new SumFieldsProcessor(array('HC', 'HP'));
+$recorder->pushProcessor($sumconso, 'CONSO');
+```
+
+Le nouvel index nommé CONSO aura pour valeur la somme des valeurs présente aux indexs HC et HP.
+
+VariationLast
+-------------
+Ce processor permet de calculer la variation depuis le dernier enregistrement, utile notamment
+pour calculer une consommation sur une période. La valeur de l'index du dernier enregistrement lu est stocké
+dans un fichier ainsi qu'un timstamp représentant la date de lecture.
+
+Les paramètres permettant d'instancier ce processor sont:
+* index de l'enregistrement
+* répertoire où stocké la précédente valeur lue.
+* la fréquence de lecture en seconde
+
+Le paramètre de fréquence de lecture permet de lisser la variation dans le cas d'une période prolongée
+ou aucun enregistrement n'a pu être lu.
+
+```php
+$variationHCHC = new VariationLastProcessor('HCHC', __DIR__, 600);
+$variationHCHP = new VariationLastProcessor('HCHP', __DIR__, 600);
+$recorder->pushProcessor($variationHCHC, 'HCvariation');
+$recorder->pushProcessor($variationHCHP, 'HPvariation');
+```
+
+

@@ -27,6 +27,21 @@ use TeleinfoRecorder\Processor\SumFieldsProcessor;
 try {
     $recorder = new Recorder();
 
+    // Ajout de processors
+    // Copy processor: copie simplement un index de l'enregistrement vers un autre index
+    $copy = new CopyProcessor('HCHP');
+    $recorder->pushProcessor($copy, 'IndexHP');
+
+    // Variation processor: calcul la différence entre le relevé courant et le précédent
+    $variationHCHC = new VariationLastProcessor('HCHC', __DIR__, 60);
+    $variationHCHP = new VariationLastProcessor('HCHP', __DIR__, 60);
+    $recorder->pushProcessor($variationHCHC, 'HCvariation');
+    $recorder->pushProcessor($variationHCHP, 'HPvariation');
+
+    // Sum processor: calcul la somme de deux index du relevé
+    $sumconso = new SumFieldsProcessor(array('HCvariation', 'HPvariation'));
+    $recorder->pushProcessor($sumconso, 'CONSO');
+
     // StreamHandler
     $recorder->pushHandler(new StreamHandler('/path/teleinfo.csv'));
 
@@ -44,21 +59,6 @@ try {
     // Cosm.com feed handler
     $cosm = new CosmFeedHandler('Your-API-Key', FeedNumber, array('HCHP', 'HCHC', 'CONSO'));
     $recorder->pushHandler($cosm);
-
-    // Ajout de processors
-    // Copy processor: copie simplement un index de l'enregistrement vers un autre index
-    $copy = new CopyProcessor('HCHP');
-    $recorder->pushProcessor($copy, 'IndexHP');
-
-    // Variation processor: calcul la différence entre le relevé courant et le précédent
-    $variationHCHC = new VariationLastProcessor('HCHC', __DIR__, 60);
-    $variationHCHP = new VariationLastProcessor('HCHP', __DIR__, 60);
-    $recorder->pushProcessor($variationHCHC, 'HCvariation');
-    $recorder->pushProcessor($variationHCHP, 'HPvariation');
-
-    // Sum processor: calcul la somme de deux index du relevé
-    $sumconso = new SumFieldsProcessor(array('HCvariation', 'HPvariation'));
-    $recorder->pushProcessor($sumconso, 'CONSO');
 
     // Write record
     $recorder->write();

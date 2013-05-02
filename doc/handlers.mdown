@@ -11,13 +11,13 @@ Les différents handlers existant:
 * **SenseFeedHandler:** enregistrement dans un feed sur la plateforme [Sen.se](http://open.sen.se/)
 
 Stream
-======
+------
 Enregistrement dans des fichiers de type csv (fichier plat avec séparateur).
 Si le fichier n'existe pas il est créé, sinon les enregistrements sont ajoutés à la fin du fichier.
 
 ```php
-    // StreamHandler
-    $recorder->pushHandler(new StreamHandler('/path/teleinfo.csv'));
+// StreamHandler
+$recorder->pushHandler(new StreamHandler('/path/teleinfo.csv'));
 ```
 Par défaut le fichier plat type csv utilise le formatage suivant:
 * délimiteur: ;
@@ -26,32 +26,72 @@ Par défaut le fichier plat type csv utilise le formatage suivant:
 Il est possible de modifier le formatage par défaut en injectant un objet CsvFormatter de la façon suivante:
 
 ```php
-    // StreamHandler
-    $stream = new StreamHandler('/path/teleinfo.csv');
-    $stream->setFormatter(new CsvFormatter(array('delimiter' => '|')));
+// StreamHandler
+$stream = new StreamHandler('/path/teleinfo.csv');
+$stream->setFormatter(new CsvFormatter(array('delimiter' => '|')));
 ```
 
 PdoHandler
-==========
+----------
 Enregistrement en base de données via PDO, fonctionnement testé avec les bases de données suivantes:
 * MySQL
 * SQLite
 
 La base de données doit au préalable être créée.
-Lors de la première utilisation, première tentative d'enregistrement la table sera générée.
+Lors de la première utilisation, la table sera générée sera automatiquement créée.
 
 ```php
-    // PdoHandler
-    $dbmysql = new PDO('mysql:dbname=teleinfo;host=localhost', 'teleinfo', 'teleinfo42');
-    $pdomysql = new PdoHandler($dbmysql, 'Releve');
-    $recorder->pushHandler($pdomysql);
+// PdoHandler
+$dbmysql = new PDO('mysql:dbname=teleinfo;host=localhost', 'teleinfo', 'teleinfo42');
+$pdomysql = new PdoHandler($dbmysql, 'Releve');
+$recorder->pushHandler($pdomysql);
 
-    $dbsqlite = new PDO('sqlite:teleinfo.db');
-    $pdosqlite = new PdoHandler($dbsqlite, 'Releve');
-    $recorder->pushHandler($pdosqlite);
+$dbsqlite = new PDO('sqlite:teleinfo.db');
+$pdosqlite = new PdoHandler($dbsqlite, 'Releve');
+$recorder->pushHandler($pdosqlite);
 ```
 
 Si vous ajoutez par la suite des index à votre enregistrement vous devrez effectuez vous même 
 la modification de votre table (requête ALTER).
+
+CosmFeedHandler
+---------------
+Afin d'utiliser la plateforme vous devez:
+* vous créez un compte sur la plateforme
+* créer un device/feed sur lequel vous allez poussez vos données (push data to Cosm)
+* générer une clef d'api vous permettant d'envoyer des données sur votre feed
+
+Chaque index transmis sur votre feed cosm correspondra à un datastream, vous n'êtes pas obligé
+de les créer à l'avance.
+
+```php
+// Cosm.com feed handler
+$cosm = new CosmFeedHandler('Your-API-Key', FeedNumber, array('HCHP', 'HCHC', 'CONSO'));
+$recorder->pushHandler($cosm);
+```
+Dans cet exemple si les datastreams n'existent pas encore sur ce feed, 
+ils seront alors automatiquement créés.
+
+
+SenseFeedHandler
+---------------
+Afin d'utiliser la plateforme vous devez:
+* obtenir un compte sur la plateforme
+* créer un custom device sur lequel vous allez poussez vos données (sending data)
+* créer des feeds correspondant au index que vous souhaitez envoyer sur la plateforme
+* générer une clef d'api vous permettant d'envoyer des données sur votre feed
+
+Chaque index transmis sur votre feed cosm correspondra à un datastream, vous n'êtes pas obligé
+de les créer à l'avance.
+
+```php
+$sense = new SenseFeedHandler('Your-API-Key', array(
+            'CONSO' => FeedID-1,
+            'PAPP'  => FeedID-2,
+            'HCHP'  => FeedID-3,
+            'HCHC'  => FeedID-4,
+        ));
+$recorder->pushHandler($sense);
+```
 
 
