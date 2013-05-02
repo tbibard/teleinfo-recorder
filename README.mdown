@@ -88,10 +88,10 @@ try {
 
 ## Handlers
 
-### Stream: enregistrement dans des fichiers
-### PdoHandler: enregistrement en base de données via PDO
-### CosmFeedHandler: enregistrement dans un feed sur la plateforme Cosm.com
-### SenseFeedHandler: enregistrement dans un feed sur la plateforme Sen.se
+* *Stream:* enregistrement dans des fichiers
+* *PdoHandler:* enregistrement en base de données via PDO
+* *CosmFeedHandler:* enregistrement dans un feed sur la plateforme [Cosm.com](https://cosm.com/)
+* *SenseFeedHandler:* enregistrement dans un feed sur la plateforme [Sen.se](http://open.sen.se/)
 
 ## Processors
 
