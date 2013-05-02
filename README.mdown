@@ -5,7 +5,7 @@ TeleinfoRecorder, lit et enregistre la trame de téléinformation des compteurs 
 La trame lue peut-être enregistrée dans un fichier (type csv) ou une base de données (via PDO).
 
 Spécifications techniques de la téléinformation:
-http://www.erdfdistribution.fr/medias/DTR_Generalites/ERDF-NOI-CPT_44E.pdf
+[ERDF-NOI-CPT_02E](http://www.erdfdistribution.fr/medias/DTR_Racc_Comptage/ERDF-NOI-CPT_02E.pdf)
 
 De nombreux schémas permettent de réaliser son propre démodulateur de la téléinformation, 
 pour sa part l'auteur a utilisé le démodulateur de www.suiviconso.fr, connecté à un Raspberry Pi.
@@ -44,6 +44,7 @@ Usage
 
 ```php
 <?php
+require 'vendor/autoload.php';
 
 use TeleinfoRecorder\Recorder;
 use TeleinfoRecorder\Handler\StreamHandler;
@@ -57,7 +58,22 @@ try {
 
     // PdoHandler
     $dbh = new PDO('mysql:dbname=teleinfo;host=localhost', 'teleinfo', 'teleinfo-password');
-    $recorder->pushHandler(new PdoHandler($dbh, 'Recorder'));
+    $recorder->pushHandler(new PdoHandler($dbh, 'Teleinfo'));
+
+    // Ajout de processors
+    // Copy processor: copie simplement un index de l'enregistrement vers un autre index
+    $copy = new CopyProcessor('HCHP');
+    $recorder->pushProcessor($copy, 'IndexHP');
+
+    // Variation processor: calcul la différence entre le relevé courant et le précédent
+    $variationHCHC = new VariationLastProcessor('HCHC', __DIR__, 60);
+    $variationHCHP = new VariationLastProcessor('HCHP', __DIR__, 60);
+    $recorder->pushProcessor($variationHCHC, 'HCvariation');
+    $recorder->pushProcessor($variationHCHP, 'HPvariation');
+
+    // Sum processor: calcul la somme de deux index du relevé
+    $sumconso = new SumFieldsProcessor(array('HCvariation', 'HPvariation'));
+    $recorder->pushProcessor($sumconso, 'CONSO');
 
     // Write record
     $recorder->write();
