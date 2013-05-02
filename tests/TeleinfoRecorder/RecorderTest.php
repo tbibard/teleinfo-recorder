@@ -113,6 +113,21 @@ class RecorderTest extends TestCase
     }
 
     /**
+     * @covers TeleinfoRecorder\Recorder::__addDateTime
+     */
+    public function testAddDateTime()
+    {
+        $record = $this->getRecord();
+
+        $reflection_class = new \ReflectionClass('\\TeleinfoRecorder\\Recorder');
+        $method = $reflection_class->getMethod('__addDateTime');
+        $method->setAccessible(true);
+
+        $recorder = new Recorder();
+        $this->assertArrayHasKey('datetime', $method->invoke($recorder, $record));
+    }
+
+    /**
      */
     public function testProcessorsWithExternalKeys()
     {
