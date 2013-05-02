@@ -16,7 +16,7 @@ mode FIFO (First In First Out).
 
 Copy
 ----
-Ce processor recopie simplement la valeur de présente à un index de l'enregistrement dansun autre index.
+Ce processor recopie simplement la valeur présente à un index de l'enregistrement dans un nouvel index.
 
 ```php
 $copy = new CopyProcessor('HCHP');
@@ -34,13 +34,13 @@ $sumconso = new SumFieldsProcessor(array('HC', 'HP'));
 $recorder->pushProcessor($sumconso, 'CONSO');
 ```
 
-Le nouvel index nommé CONSO aura pour valeur la somme des valeurs présente aux indexs HC et HP.
+Le nouvel index nommé CONSO aura pour valeur la somme des valeurs présentes aux index HC et HP.
 
 VariationLast
 -------------
 Ce processor permet de calculer la variation depuis le dernier enregistrement, utile notamment
-pour calculer une consommation sur une période. La valeur de l'index du dernier enregistrement lu est stocké
-dans un fichier ainsi qu'un timstamp représentant la date de lecture.
+pour calculer une consommation sur une période. La valeur de l'index du dernier enregistrement lu est stockée
+dans un fichier ainsi qu'un timestamp représentant la date de lecture.
 
 Les paramètres permettant d'instancier ce processor sont:
 * index de l'enregistrement

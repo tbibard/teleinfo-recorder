@@ -38,7 +38,7 @@ Enregistrement en base de données via PDO, fonctionnement testé avec les bases
 * SQLite
 
 La base de données doit au préalable être créée.
-Lors de la première utilisation, la table sera générée sera automatiquement créée.
+Lors de la première utilisation, la table sera générée automatiquement créée.
 
 ```php
 // PdoHandler
@@ -61,7 +61,7 @@ Afin d'utiliser la plateforme vous devez:
 * créer un device/feed sur lequel vous allez poussez vos données (push data to Cosm)
 * générer une clef d'api vous permettant d'envoyer des données sur votre feed
 
-Chaque index transmis sur votre feed cosm correspondra à un datastream, vous n'êtes pas obligé
+Chaque index transmis sur votre feed cosm correspondra à un **datastream**, vous n'êtes pas obligé
 de les créer à l'avance.
 
 ```php
@@ -81,8 +81,7 @@ Afin d'utiliser la plateforme vous devez:
 * créer des feeds correspondant au index que vous souhaitez envoyer sur la plateforme
 * générer une clef d'api vous permettant d'envoyer des données sur votre feed
 
-Chaque index transmis sur votre feed cosm correspondra à un datastream, vous n'êtes pas obligé
-de les créer à l'avance.
+Chaque index transmis devra correspondre à un feed existant sur votre device.
 
 ```php
 $sense = new SenseFeedHandler('Your-API-Key', array(

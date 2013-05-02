@@ -3,7 +3,7 @@ Utiliser TeleinfoRecorder
 
 TeleinfoRecorder, lit et enregistre la trame de téléinformation des compteurs électronique EDF.
 La trame lue peut-être enregistrée dans un fichier (type csv), une base de données (via PDO) 
-ou sur des plateformes type Cosm.com ou Sen.se.
+ou sur des plateformes type [Cosm.com](https://cosm.com/) ou [Sen.se](http://open.sen.se/).
 
 Principe d'utilisation
 ----------------------
@@ -80,19 +80,3 @@ try {
 * **Copy:** permet de copier un index de l'enregistrement dans un nouvel index
 * **SumFields:** permet d'additionner les valeurs de certains index de l'enregistrement
 * **VariationLast:** permet de récupérer la différence depuis le dernier relevé.
-
-Docs
-----
-Voir le dossier _doc_ pour plus de détails....
-
-Author
-------
-Thomas Bibard - thomas.bibard@neblion.net - https://twitter.com/tbibard
-
-License
--------
-TeleinfoRecorder est sous licence MIT - voir le fichier LICENSE pour plus de détails.
-
-Crédits
--------
-Cette librairie est inspirée de la librairie [Monolog](https://github.com/Seldaek/monolog)
