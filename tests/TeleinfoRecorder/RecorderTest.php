@@ -128,38 +128,6 @@ class RecorderTest extends TestCase
     }
 
     /**
-     */
-    public function testProcessorsWithExternalKeys()
-    {
-        /*
-        $reader = $this->__getReader();
-
-        $reflection_class = new \ReflectionClass('\\TeleinfoRecorder\\Recorder');
-        $method = $reflection_class->getMethod('__processorsWithExternalKeys');
-        $method->setAccessible(true);
-
-        $recorder = new Recorder($reader);
-        $sumconso = new SumFieldsProcessor(array('HCHP', 'HCHC'));
-        $recorder->pushProcessor($sumconso, 'CONSO');
-        $record = $recorder->getRecord();
-        $this->assertEquals(array(
-                'ADCO'      => '020422624973',
-                'OPTARIF'   => 'HC..',
-                'ISOUSC'    => '45',
-                'HCHC'      => '028835516',
-                'HCHP'      => '053241739',
-                'PTEC'      => 'HP..',
-                'IINST'     => '007',
-                'IMAX'      => '041',
-                'PAPP'      => '01720',
-                'HHPHC'     => 'D',
-                'MOTDETAT'  => '000000',
-                'CONSO'     => 82077255
-            ), $method->invoke($recorder, $record));
-         */
-    }
-
-    /**
      *
      *
      */
