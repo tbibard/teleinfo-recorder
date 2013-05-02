@@ -2,7 +2,8 @@ TeleinfoRecorder - Lit et enregistre la trame téléinformation des compteurs ED
 ===============================================================================
 
 TeleinfoRecorder, lit et enregistre la trame de téléinformation des compteurs électronique EDF.
-La trame lue peut-être enregistrée dans un fichier (type csv) ou une base de données (via PDO).
+La trame lue peut-être enregistrée dans un fichier (type csv) ou une base de données (via PDO) 
+ou sur des plateformes type Cosm.com ou Sen.se.
 
 Spécifications techniques de la téléinformation:
 [ERDF-NOI-CPT_02E](http://www.erdfdistribution.fr/medias/DTR_Racc_Comptage/ERDF-NOI-CPT_02E.pdf)
@@ -88,16 +89,16 @@ try {
 
 ## Handlers
 
-* *Stream:* enregistrement dans des fichiers
-* *PdoHandler:* enregistrement en base de données via PDO
-* *CosmFeedHandler:* enregistrement dans un feed sur la plateforme [Cosm.com](https://cosm.com/)
-* *SenseFeedHandler:* enregistrement dans un feed sur la plateforme [Sen.se](http://open.sen.se/)
+* **Stream:** enregistrement dans des fichiers
+* **PdoHandler:** enregistrement en base de données via PDO
+* **CosmFeedHandler:** enregistrement dans un feed sur la plateforme [Cosm.com](https://cosm.com/)
+* **SenseFeedHandler:** enregistrement dans un feed sur la plateforme [Sen.se](http://open.sen.se/)
 
 ## Processors
 
-### Copy: permet de copier un index de l'enregistrement dans un nouvel index
-### SumFields: permet d'additionner les valeurs de certains index de l'enregistrement
-### VariationLast: permet de récupérer la différence depuis le dernier relevé.
+* **Copy:** permet de copier un index de l'enregistrement dans un nouvel index
+* **SumFields:** permet d'additionner les valeurs de certains index de l'enregistrement
+* **VariationLast:** permet de récupérer la différence depuis le dernier relevé.
 
 Docs
 ----
