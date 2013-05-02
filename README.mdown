@@ -86,18 +86,18 @@ try {
 
 ```
 
-### Handlers
+## Handlers
 
-#### Stream: enregistrement dans des fichiers
-#### PdoHandler: enregistrement en base de données via PDO
-#### CosmFeedHandler: enregistrement dans un feed sur la plateforme Cosm.com
-#### SenseFeedHandler: enregistrement dans un feed sur la plateforme Sen.se
+### Stream: enregistrement dans des fichiers
+### PdoHandler: enregistrement en base de données via PDO
+### CosmFeedHandler: enregistrement dans un feed sur la plateforme Cosm.com
+### SenseFeedHandler: enregistrement dans un feed sur la plateforme Sen.se
 
-### Processors
+## Processors
 
-#### Copy: permet de copier un index de l'enregistrement dans un nouvel index
-#### SumFields: permet d'additionner les valeurs de certains index de l'enregistrement
-#### VariationLast: permet de récupérer la différence depuis le dernier relevé.
+### Copy: permet de copier un index de l'enregistrement dans un nouvel index
+### SumFields: permet d'additionner les valeurs de certains index de l'enregistrement
+### VariationLast: permet de récupérer la différence depuis le dernier relevé.
 
 Docs
 ----
