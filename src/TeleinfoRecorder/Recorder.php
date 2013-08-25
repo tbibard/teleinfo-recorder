@@ -34,6 +34,12 @@ class Recorder {
      * var array $handlers
      */
     protected $handlers = array();
+    
+    /**
+     *
+     * @var boolean $debug 
+     */
+    private $debug = false;
 
 
     protected $fields = array(
@@ -56,6 +62,16 @@ class Recorder {
         } else {
             $this->reader = new Reader();
         }
+    }
+    
+    /**
+     * setDebug
+     * 
+     * @param boolean $mode
+     */
+    public function setDebug($mode = false)
+    {
+        $this->debug = $mode;
     }
 
     /**
@@ -276,6 +292,10 @@ class Recorder {
 
         // Traitement processors
         $record = $this->__processing($record);
+        
+        if ($this->debug) {
+            print_r($record);
+        }
 
         // Traitement final de l'enregistrement
         foreach ($this->handlers as $handler) {
