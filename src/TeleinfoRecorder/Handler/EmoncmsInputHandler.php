@@ -22,7 +22,7 @@ class EmoncmsInputHandler extends AbstractHandler
     public function __construct($apiKey, $node, $inputs)
     {
         $this->apiKey   = $apiKey;
-	$this->inputs   = $feeds;
+	$this->inputs   = $inputs;
 	$this->node	= $node;
     }
 
@@ -45,7 +45,7 @@ class EmoncmsInputHandler extends AbstractHandler
 	$client = new Client('http://emoncms.org');
 
 	// Build query_path
-	$query = '/input/json.post?node=' . $this->node;
+	$query = '/input/post.json?node=' . $this->node;
 
 	$data = array();
         foreach ($this->inputs as $input) {
@@ -54,7 +54,8 @@ class EmoncmsInputHandler extends AbstractHandler
 	    }
         }
         
-        $query .=  '&json=' . url_encode(json_encode($data)) . '&apikey=' . $this->apikey;
+	$query .=  '&json=' . urlencode(json_encode($data)) . '&apikey=' . $this->apikey;
+	$request = $client->post($query);
         $response = $request->send();
     }
 }
