@@ -54,7 +54,7 @@ class EmoncmsInputHandler extends AbstractHandler
 	    }
         }
         
-	$query .=  '&json=' . urlencode(json_encode($data)) . '&apikey=' . $this->apikey;
+	$query .=  '&json=' . urlencode(json_encode($data)) . '&apikey=' . $this->apiKey;
 	$request = $client->post($query);
         $response = $request->send();
     }
