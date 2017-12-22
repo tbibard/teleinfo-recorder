@@ -102,7 +102,7 @@ try {
 
 Docs
 ----
-Voir le dossier _doc_ pour plus de détails....
+Voir le dossier _doc_ pour plus de détails.
 
 Author
 ------
